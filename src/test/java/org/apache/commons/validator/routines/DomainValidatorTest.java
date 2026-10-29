@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -56,21 +55,11 @@ import org.junit.jupiter.api.Test;
  */
 public class DomainValidatorTest {
 
-    private static void closeQuietly(final Closeable in) {
-        if (in != null) {
-            try {
-                in.close();
-            } catch (final IOException ignore) {
-                // ignore
-            }
-        }
-    }
-
     /*
      * Download a file if it is more recent than our cached copy. Unfortunately the server does not seem to honor If-Modified-Since for the Html page, so we
      * check if it is newer than the txt file and skip download if so
      */
-    private static long download(final File file, final String tldUrl, final long timestamp) throws IOException {
+    private static long download(final File file, final String tldUrl) throws IOException {
         final int hour = 60 * 60 * 1000; // an hour in ms
         final long modTime;
         // For testing purposes, don't download files more than once an hour
@@ -201,21 +190,18 @@ public class DomainValidatorTest {
     private static boolean isNotInRootZone(final String domain) {
         final String tldUrl = "http://www.iana.org/domains/root/db/" + domain + ".html";
         final File rootCheck = new File("target", "tld_" + domain + ".html");
-        BufferedReader in = null;
         try {
-            download(rootCheck, tldUrl, 0L);
-            in = new BufferedReader(new FileReader(rootCheck));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                if (inputLine.contains("This domain is not present in the root zone at this time.")) {
-                    return true;
+            download(rootCheck, tldUrl);
+            try (BufferedReader in = new BufferedReader(new FileReader(rootCheck))) {
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    if (inputLine.contains("This domain is not present in the root zone at this time.")) {
+                        return true;
+                    }
                 }
             }
-            in.close();
         } catch (final IOException ignore) {
             // ignore
-        } finally {
-            closeQuietly(in);
         }
         return false;
     }
@@ -278,11 +264,11 @@ public class DomainValidatorTest {
         final Set<String> ianaTlds = new HashSet<>(); // keep for comparison with array contents
         final DomainValidator dv = DomainValidator.getInstance();
         final File txtFile = new File("target/tlds-alpha-by-domain.txt");
-        final long timestamp = download(txtFile, "https://data.iana.org/TLD/tlds-alpha-by-domain.txt", 0L);
+        download(txtFile, "https://data.iana.org/TLD/tlds-alpha-by-domain.txt");
         final File htmlFile = new File("target/tlds-alpha-by-domain.html");
         // N.B. sometimes the html file may be updated a day or so after the txt file
         // if the txt file contains entries not found in the html file, try again in a day or two
-        download(htmlFile, "https://www.iana.org/domains/root/db", timestamp);
+        download(htmlFile, "https://www.iana.org/domains/root/db");
 
         final BufferedReader br = new BufferedReader(new FileReader(txtFile));
         String line;
