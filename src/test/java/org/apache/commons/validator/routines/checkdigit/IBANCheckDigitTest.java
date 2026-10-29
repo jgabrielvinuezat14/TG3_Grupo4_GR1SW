@@ -216,19 +216,6 @@ public class IBANCheckDigitTest extends AbstractCheckDigitTest {
     @Override
     @Test
     public void testZeroSum() {
-        // ignore, don't run this test
 
-        // example code used to create dummy IBANs
-//        try {
-//            for(int i=0; i<97;i++) {
-//                String check = String.format("ZZ00ZZZZZZZZZZZZZZZZZZZZZZZZZ%02d", new Object[]{Integer.valueOf(i)});
-//                String chk = routine.calculate(check);
-//                if (chk.equals("97")||chk.equals("98")||chk.equals("02")) {
-//                    System.out.println(check+ " "+chk);
-//                }
-//            }
-//        } catch (CheckDigitException e) {
-//            e.printStackTrace();
-//        }
     }
 }
