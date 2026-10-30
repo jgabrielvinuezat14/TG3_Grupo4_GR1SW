@@ -18,7 +18,7 @@ package org.apache.commons.validator.routines.checkdigit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Verhoeff Check Digit Test.
  */
@@ -39,6 +39,7 @@ public class VerhoeffCheckDigitTest extends AbstractCheckDigitTest {
     @Override
     @Test
     public void testZeroSum() {
-        // ignore, don't run this test
+        assertTrue(routine.isValid(zeroSum),
+                "Verhoeff debe aceptar un código de diez ceros");
     }
 }

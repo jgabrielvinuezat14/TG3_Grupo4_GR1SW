@@ -215,13 +215,8 @@ public class CreditCardValidator {
         if (!this.luhnCheck(card)) {
             return false;
         }
-        for (final Object cardType : this.cardTypes) {
-            final CreditCardType type = (CreditCardType) cardType;
-            if (type.matches(card)) {
-                return true;
-            }
-        }
-        return false;
+        return this.cardTypes.stream()
+                .anyMatch(type -> type.matches(card));
     }
 
     /**
